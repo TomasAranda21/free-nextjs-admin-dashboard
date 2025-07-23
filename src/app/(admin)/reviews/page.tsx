@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { IReview, ReviewStatus } from '@/types';
-import { getReviews, getReviewsByStatus } from '@/lib/firestore';
-import Badge from '@/components/ui/badge/Badge';
+import { getReviews, getReviewsByStatus, approveReview } from '@/lib/firestore';
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import Select from '@/components/form/Select';
 import PageBreadcrumb from '@/components/common/PageBreadCrumb';
 import ImageModal from '@/components/ui/ImageModal';
+import ReviewStatusSelect from '@/components/ui/ReviewStatusSelect';
 
 const ReviewsPage: React.FC = () => {
   const [reviews, setReviews] = useState<IReview[]>([]);
@@ -58,21 +58,7 @@ const ReviewsPage: React.FC = () => {
     });
   };
 
-  const getStatusBadge = (status: ReviewStatus) => {
-    const statusConfig = {
-      pending: { color: 'warning' as const, text: 'Pending' },
-      with_image: { color: 'info' as const, text: 'With Image' },
-      approved: { color: 'success' as const, text: 'Approved' },
-      rejected: { color: 'error' as const, text: 'Rejected' }
-    };
 
-    const config = statusConfig[status];
-    return (
-      <Badge variant="light" color={config.color}>
-        {config.text}
-      </Badge>
-    );
-  };
 
   const getLanguageText = (language: string) => {
     const languages = {
@@ -91,6 +77,38 @@ const ReviewsPage: React.FC = () => {
   const closeImageModal = () => {
     setIsImageModalOpen(false);
     setSelectedImage(null);
+  };
+
+  const handleStatusChange = async (reviewId: string, newStatus: ReviewStatus, rejectionReason?: string) => {
+    try {
+      const approved = newStatus === 'approved';
+      await approveReview(reviewId, approved, rejectionReason);
+      
+      // Refresh the reviews list
+      const fetchReviews = async () => {
+        try {
+          setLoading(true);
+          let reviewsData: IReview[];
+          
+          if (statusFilter === 'all') {
+            reviewsData = await getReviews();
+          } else {
+            reviewsData = await getReviewsByStatus(statusFilter);
+          }
+          
+          setReviews(reviewsData);
+        } catch (error) {
+          console.error('Error fetching reviews:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchReviews();
+    } catch (error) {
+      console.error('Error changing review status:', error);
+      alert('Error changing review status. Please try again.');
+    }
   };
 
   const statusOptions = [
@@ -158,9 +176,9 @@ const ReviewsPage: React.FC = () => {
                     <TableCell>Approved</TableCell>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className='divide-y divide-gray-200 dark:divide-gray-700'>
                   {reviews.map((review, index) => (
-                    <TableRow key={index}>
+                    <TableRow key={index} className='hover:bg-gray-100 dark:hover:bg-gray-800 py-2'>
                       <TableCell>
                         <div className="font-medium text-gray-800 dark:text-white/90">
                           {review.coupleName}
@@ -172,7 +190,11 @@ const ReviewsPage: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {getStatusBadge(review.status)}
+                        <ReviewStatusSelect
+                          currentStatus={review.status}
+                          reviewId={review.coupleId}
+                          onStatusChange={handleStatusChange}
+                        />
                       </TableCell>
                       <TableCell>
                         <div className="text-gray-600 dark:text-gray-400">
