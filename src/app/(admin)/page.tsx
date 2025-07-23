@@ -1,42 +1,32 @@
-import type { Metadata } from "next";
-import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
+"use client";
+
 import React from "react";
-import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
-import RecentOrders from "@/components/ecommerce/RecentOrders";
-import DemographicCard from "@/components/ecommerce/DemographicCard";
+import StatsCards from "@/components/dashboard/StatsCards";
+import UsersTable from "@/components/dashboard/UsersTable";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
-export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
-};
+export default function Dashboard() {
+  const { stats, users, loading, error } = useDashboardData();
 
-export default function Ecommerce() {
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
+          <p className="text-red-600 dark:text-red-400">
+            Error: {error}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
-      <div className="col-span-12 space-y-6 xl:col-span-7">
-        <EcommerceMetrics />
-
-        <MonthlySalesChart />
-      </div>
-
-      <div className="col-span-12 xl:col-span-5">
-        <MonthlyTarget />
-      </div>
-
-      <div className="col-span-12">
-        <StatisticsChart />
-      </div>
-
-      <div className="col-span-12 xl:col-span-5">
-        <DemographicCard />
-      </div>
-
-      <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
-      </div>
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <StatsCards stats={stats} loading={loading} />
+      
+      {/* Users Table */}
+      <UsersTable users={users} loading={loading} />
     </div>
   );
 }

@@ -1,14 +1,13 @@
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import ComponentCard from '../../common/ComponentCard';
 import Label from '../Label';
 import Input from '../input/InputField';
 import Select from '../Select';
-import { ChevronDownIcon, EyeCloseIcon, EyeIcon, TimeIcon } from '../../../icons';
+import { ChevronDownIcon, TimeIcon } from '../../../icons';
 import DatePicker from '@/components/form/date-picker';
 
 export default function DefaultInputs() {
-  const [showPassword, setShowPassword] = useState(false);
   const options = [
     { value: "marketing", label: "Marketing" },
     { value: "template", label: "Template" },
@@ -42,25 +41,7 @@ export default function DefaultInputs() {
             </span>
           </div>
         </div>
-        <div>
-          <Label>Password Input</Label>
-          <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-            />
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-            >
-              {showPassword ? (
-                <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
-              ) : (
-                <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
-              )}
-            </button>
-          </div>
-        </div>
+  
 
         <div>
           <DatePicker
