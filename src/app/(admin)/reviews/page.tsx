@@ -79,10 +79,10 @@ const ReviewsPage: React.FC = () => {
     setSelectedImage(null);
   };
 
-  const handleStatusChange = async (reviewId: string, newStatus: ReviewStatus, rejectionReason?: string) => {
+  const handleStatusChange = async (reviewId: string, newStatus: ReviewStatus, language: string, rejectionReason?: string) => {
     try {
       const approved = newStatus === 'approved';
-      await approveReview(reviewId, approved, rejectionReason);
+      await approveReview(reviewId, approved, language, rejectionReason);
       
       // Refresh the reviews list
       const fetchReviews = async () => {
@@ -161,7 +161,7 @@ const ReviewsPage: React.FC = () => {
         {/* Reviews Table */}
         <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
           <div className="p-6">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto min-h-[500px]">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -178,7 +178,7 @@ const ReviewsPage: React.FC = () => {
                 </TableHeader>
                 <TableBody className='divide-y divide-gray-200 dark:divide-gray-700'>
                   {reviews.map((review, index) => (
-                    <TableRow key={index} className='hover:bg-gray-100 dark:hover:bg-gray-800 py-2'>
+                    <TableRow key={index} className='hover:bg-gray-100 dark:hover:bg-gray-800'>
                       <TableCell>
                         <div className="font-medium text-gray-800 dark:text-white/90">
                           {review.coupleName}
@@ -194,6 +194,7 @@ const ReviewsPage: React.FC = () => {
                           currentStatus={review.status}
                           reviewId={review.coupleId}
                           onStatusChange={handleStatusChange}
+                          language={review.language}
                         />
                       </TableCell>
                       <TableCell>
